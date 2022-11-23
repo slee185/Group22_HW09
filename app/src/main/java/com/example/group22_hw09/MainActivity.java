@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.widget.Toast;
+import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -13,8 +13,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Objects;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -25,6 +28,8 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private final OkHttpClient client = new OkHttpClient();
+    LatLongResponse latLongResponse;
+    ArrayList<LatLng> latLngArrayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +53,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                final String responseData = response.body().string();
+                Gson gson = new Gson();
+                latLongResponse = gson.fromJson(Objects.requireNonNull(response.body()).string(), LatLongResponse.class);
+                Log.d("TAG", "onResponse: "+ latLongResponse);
             }
         });
     }
@@ -56,12 +63,34 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-//        Polyline polyline1 = googleMap.addPolyline(new PolylineOptions()
-//                .clickable(true)
-//                .add(new LatLng()));
+        if (latLngArrayList != null){
+            Polyline polyline1 = googleMap.addPolyline(new PolylineOptions()
+                    .clickable(true)
+                    .addAll(latLngArrayList));
 
-        googleMap.addMarker(new MarkerOptions()
-                .position(new LatLng(0, 0))
-                .title("Marker"));
+            googleMap.addMarker(new MarkerOptions()
+                    .position(latLngArrayList.get(0))
+                    .title("Start location"));
+
+            googleMap.addMarker(new MarkerOptions()
+                    .position(latLngArrayList.get(latLngArrayList.size()))
+                    .title("End location"));
+        }else{
+            Log.d("TAG", "onMapReady: ArrayList empty");
+        }
+
+        }
+    }
+
+    class LatLongResponse {
+    String title;
+    ArrayList<LatLng> latLngArrayList;
+
+    @Override
+    public String toString() {
+        return "LatLongResponse{" +
+                "title='" + title + '\'' +
+                ", latLngArrayList=" + latLngArrayList +
+                '}';
     }
 }
