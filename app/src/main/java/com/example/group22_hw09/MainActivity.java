@@ -17,6 +17,7 @@ import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import okhttp3.Call;
@@ -29,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private final OkHttpClient client = new OkHttpClient();
     LatLongResponse latLongResponse;
-    ArrayList<LatLng> latLngArrayList;
+    List<LatLng> latLngArrayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +57,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Gson gson = new Gson();
                 latLongResponse = gson.fromJson(Objects.requireNonNull(response.body()).string(), LatLongResponse.class);
                 Log.d("TAG", "onResponse: "+ latLongResponse);
+
+//                for(int i=0; i<latLongResponse.pathList.size(); i++){
+//                    LatLng point = latLongResponse.pathList.get(i);
+//                    double longitude = (double) latLongResponse.longitudes.get(i);
+//
+//                    LatLng point = new LatLng(latitude, longitude);
+//                    latLngArrayList.add(point);
+//                }
+//                Log.d("TAG", "onResponse: "+ latLngArrayList);
             }
         });
     }
@@ -83,14 +93,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     class LatLongResponse {
-    String title;
-    ArrayList<LatLng> latLngArrayList;
 
-    @Override
-    public String toString() {
-        return "LatLongResponse{" +
-                "title='" + title + '\'' +
-                ", latLngArrayList=" + latLngArrayList +
-                '}';
+    String title;
+    ArrayList<Path> pathList;
+
+        @Override
+        public String toString() {
+            return "LatLongResponse{" +
+                    "title='" + title + '\'' +
+                    ", pathList=" + pathList +
+                    '}';
+        }
     }
-}
+
+    class Path {
+
+    double latitude;
+    double longitude;
+
+        @Override
+        public String toString() {
+            return "path{" +
+                    "latitude=" + latitude +
+                    ", longitude=" + longitude +
+                    '}';
+        }
+    }
+
